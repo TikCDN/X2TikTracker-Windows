@@ -125,10 +125,12 @@ enum RENEW_TOKEN_ERR_CODE {
 
 enum TrackerZone
 {
-	China = 0, 
-	HongKong = 1,
-	Europe = 2,
-	USA = 3,
+	kChina = 0, 
+	kHongKong = 1,
+	kEurope = 2,
+	kUSA = 3,
+	kAISA = 4,
+	kAFRICA = 5,
 };
 
 enum TrackerLog
@@ -144,43 +146,38 @@ enum TrackerLog
 
 struct X2TikTConfig
 {
-	X2TikTConfig() : logEnabled(false), logLevel(kWARN),trackerZone(China), downloadTimeout(10000)
+	X2TikTConfig() : logEnabled(false), logLevel(kWARN),trackerZone(kChina), downloadTimeout(10000)
 		, localPortHls(0), localPortDash(0), diskCacheLimit(0), memoryCacheLimit(0), memoryCacheCountLimit(15), autoShare(true)
 		, withTag(NULL), webRTCConfig(NULL), maxPeerConnections(25)
-		, useHttpRange(true), useStrictHlsSegmentId(true)
-		, httpHeadersForHls(NULL), httpHeadersForDash(NULL) 
-		, isSetTopBox(false), sharePlaylist(false), prefetchOnly(false), logPersistent(false), geoIpPreflight(true)
-		, insertTimeOffsetTag(NULL), mediaFileSeparator(NULL)
+		, useHttpRange(true), httpHeadersForHls(NULL), httpHeadersForDash(NULL) 
+		, isSetTopBox(false), sharePlaylist(false), logPersistent(false), geoIpPreflight(true)
+		, mediaFileSeparator(NULL)
 	{
 
 	}
-	bool logEnabled;					// 是否打印日志, 默认：false
-	int logLevel;						// 打印日志的级别, 默认：WARN
-	TrackerZone trackerZone;            // tracker服务器地址所在国家的枚举，分为China、HongKong、Europe、USA
-	int downloadTimeout;				// HTTP下载ts文件超时时间，单位毫秒，默认10000ms
-	int localPortHls;					// HLS本地代理服务器的端口号(默认随机端口)
-	int localPortDash;					// DASH本地代理服务器的端口号(默认随机端口)
-	int diskCacheLimit;					// 点播模式下P2P在磁盘缓存的最大数据量(设为0可以禁用磁盘缓存)，单位Byte，2G为(2000*1024*1024)
-	int memoryCacheLimit;				// P2P在内存缓存的最大数据量，单位Byte，2G为(2000*1024*1024)
-	int memoryCacheCountLimit;			// P2P在内存缓存的最大数据量，用ts文件个数表示，默认15，（优先）
-	int autoShare;						// 开启或关闭p2p engine
-	const char* withTag;                // 用户自定义的标签，可以在控制台查看分布图
-	const char* webRTCConfig;           // 通过webRTCConfig来修改WebRTC默认配置
-	int maxPeerConnections;             // 最大连接节点数量，默认25
-	bool useHttpRange;                  // 在可能的情况下使用Http Range请求来补足p2p下载超时的剩余部分数据，默认true
-	bool useStrictHlsSegmentId;         // 使用基于url的SegmentId，替代默认基于序列号的
-	const char* httpHeadersForHls;      // 设置请求ts和m3u8时的HTTP请求头
-	const char* httpHeadersForDash;     // 设置请求Dash文件时的HTTP请求头
-	bool isSetTopBox;                   // 如果运行于机顶盒请设置成true，默认：false
-	bool sharePlaylist;                 // 是否允许m3u8文件的P2P传输，默认：false
-	bool prefetchOnly;                  // HLS模式下只采用预加载的方式进行P2P下载，默认：false
-	bool logPersistent;                 // 是否将日志持久化到外部存储（Environment.getExternalStorageDirectory()路径下的logger文件夹），默认：false
-	bool geoIpPreflight;                // 向在线IP数据库请求ASN等信息，从而获得更准确的调度，默认：true
-	const char* insertTimeOffsetTag;    // 仅在直播模式生效，在m3u8文件中插入 "#EXT-X-START:TIME-OFFSET=[timeOffset]"，强制播放器从某个位置开始加载，其中 [timeOffset] 是在播放列表的偏移量，如果为负则从播放列表结尾往前偏移（单位：秒）
-	const char* mediaFileSeparator;     // 媒体文件后缀分隔符
-
-	// 支持的HLS媒体文件后缀("mp4", "fmp4", "ts","m4s","m4v"))            
-	// 支持的DASH媒体文件后缀("mp4", "fmp4", "webm", "m4s", "m4v"))      
+	bool logEnabled;					// Enbable/Disable log, default: false
+	int logLevel;						// Log's level, default: kWARN(TrackerLog)
+	TrackerZone trackerZone;            // The zone of tracker, like: China、HongKong、Europe、USA etc...
+	int downloadTimeout;				// The timeout time of downloading ts files by HTTP. default: 10000ms
+	int localPortHls;					// The port of local proxy for HLS, default: 0(Random)
+	int localPortDash;					// The port of local proxy for DASH, default: 0(Random)
+	int diskCacheLimit;					// The maximum amount of data cached on disk in VOD mode. default: 0(disable)，unit: Byte，2G(2000*1024*1024)
+	int memoryCacheLimit;				// The maximum amount of data cached in memory. default: 0，unit: Byte，2G(2000*1024*1024), checking second.
+	int memoryCacheCountLimit;			// The maximum count of data cached in memory, default: 15, checking first.
+	int autoShare;						// Auto share.
+	const char* withTag;                // User self defined tag, it's used in console for user distribution map.
+	const char* webRTCConfig;           // The config of webRTC.
+	int maxPeerConnections;             // The maximum amount of P2P connections, default: 25.
+	bool useHttpRange;                  // It's download the remain part of Ts file usd Http Range when P2P load failed, default: false.
+	const char* httpHeadersForHls;      // Set the header of HTTP when request for ts/m3u8.
+	const char* httpHeadersForDash;     // Set the header of HTTP when request for dash.
+	bool isSetTopBox;                   // Set it to true when running on Set-top box, default: false
+	bool sharePlaylist;                 // Is allow sharing m3u8 file, default: false
+	bool logPersistent;                 // Is save the log file on disk, default: false, Android:(Environment.getExternalStorageDirectory()/logger)
+	bool geoIpPreflight;                // Get ASN information from the IP database, default: true
+	const char* mediaFileSeparator;     // The suffixes of media file.
+	// Supported HLS media file suffixes("mp4", "fmp4", "ts","m4s","m4v"))            
+	// Supported DASH media file suffixes("mp4", "fmp4", "webm", "m4s", "m4v"))      
 };
 
 class X2TikTrackerEventHanlder
@@ -190,22 +187,27 @@ public:
 	virtual ~X2TikTrackerEventHanlder() {};
 
 	/**
+	* Callback the result of P2P share.
 	*/
 	virtual void OnShareResult(TKT_CODE nCode) = 0;
 	/**
-	jsStats.allHttpDownload: Download from HTTP(CDN), (Unit: KB)
-	jsStats.allShareDownload: Download from Peer(Sharer), (Unit: KB)
-	jsStats.allShareUpload: Upload to Peer, (Unit: KB)
-	jsStats.shareDownloadSpeed: The speed of sharing, (Unit: KB/s)
+	* Got stats of the session.
+	* jsStats.allHttpDownload: Download from HTTP(CDN), (Unit: KB)
+	* jsStats.allShareDownload: Download from Peer(Sharer), (Unit: KB)
+	* jsStats.allShareUpload: Upload to Peer, (Unit: KB)
+	* jsStats.shareDownloadSpeed: The speed of sharing, (Unit: KB/s)
 	*/
 	virtual void OnLoadDataStats(const char*jsStats) {};
 	/**
+	* Peer online.
 	*/
 	virtual void OnPeerOn(const char* strPeerUId, const char* strPeerUData) {};
 	/**
+	* Peer offline.
 	*/
 	virtual void OnPeerOff(const char* strPeerUId, const char* strPeerUData) {};
 	/**
+	* Got the result of renew token.
 	*/
 	virtual void OnRenewTokenResult(const char* token, RENEW_TOKEN_ERR_CODE errorCode)
 	{
@@ -213,11 +215,13 @@ public:
 		(RENEW_TOKEN_ERR_CODE) errorCode;
 	}
 	/**
+	* Token will expired.
 	*/
 	virtual void OnTokenWillExpired()
 	{
 	}
 	/**
+	* Token is expried.
 	*/
 	virtual void OnTokenExpired()
 	{
